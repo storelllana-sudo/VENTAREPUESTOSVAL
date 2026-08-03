@@ -1,26 +1,53 @@
 import axios from "axios";
 
-// Forzamos la URL real apuntando directamente al puerto 8000 de tu servidor Python
 const API_URL = "http://localhost:8000/api/v2";
 
-console.log("=== SISTEMA DE EMERGENCIA ACTIVADO ===");
-console.log("CONECTANDO DIRECTAMENTE A:", API_URL);
+console.log("=== ERP REPUESTOS VAL ===");
+console.log("API:", API_URL);
 
-export const authService = {
-    async login(username, password) {
-        // Formatear las credenciales como exige OAuth2PasswordRequestForm en FastAPI (FORMULARIO)
-        const formData = new URLSearchParams();
-        formData.append("username", username);
-        formData.append("password", password);
+const authService = {
+  async login(username, password) {
+    const formData = new URLSearchParams();
 
-        // Ejecutar la petición HTTP enviando los datos como x-www-form-urlencoded
-        const response = await axios.post(`${API_URL}/auth/login`, formData, {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        });
+    formData.append("username", username);
+    formData.append("password", password);
 
-        // Devuelve {"access_token": "...", "token_type": "bearer"}
-        return response.data; 
+    const response = await axios.post(
+      `${API_URL}/auth/login`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    if (response.data?.access_token) {
+      localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("username", username);
     }
+
+    return response.data;
+  },
+
+  logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    window.location.href = "/login";
+  },
+
+  getToken() {
+    return localStorage.getItem("token");
+  },
+
+  isAuthenticated() {
+    const token = localStorage.getItem("token");
+    return !!token && token.trim() !== "";
+  },
 };
+
+// Exportación nombrada
+export { authService };
+
+// Exportación por defecto
+export default authService;

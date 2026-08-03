@@ -2,13 +2,19 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = () => {
-    const token = localStorage.getItem("token_erp_val");
+  const token = localStorage.getItem("token");
 
-    if (!token) {
-        return <Navigate to="/login" replace />;
-    }
+  console.log("=== INSPECCIÓN DE SEGURIDAD EN RUTA ===");
+  console.log("¿Token detectado en LocalStorage?:", !!token);
 
-    return <Outlet />;
+  if (!token || token.trim() === "") {
+    console.warn("ACCESO DENEGADO: Redirigiendo al Login.");
+    return <Navigate to="/login" replace />;
+  }
+
+  console.log("ACCESO CONCEDIDO: Cargando vistas del ERP.");
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
